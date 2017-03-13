@@ -6,12 +6,12 @@
 #include "inv_mpu.h"
 #include "iwdg.h"
 #include "tick.h"
-#include "hardiic.h"
+
 
 volatile unsigned short error_sleeping = 0;
 
 // 单向环形链表缓冲区
-#define MPU_LINKED_LIST_ROUND_SIZE 1000/SAMPLE_MILLSECOND_TIME
+#define MPU_LINKED_LIST_ROUND_SIZE MPU_6050_SAMPLE_FREQUENCY*2
 linkedMPUNode *nowWriteMPU;
 linkedMPUNode *nowProcessedMPU;
 linkedMPUNode lpbuffer[MPU_LINKED_LIST_ROUND_SIZE];
@@ -80,7 +80,7 @@ void TIM4_IRQHandler(void){
             unsigned char err = 0xff;
             onD3();
             nowWriteMPU->gotTick = getTick();// get system tick
-            err = MPU_Read_Len(MPU_IIC_ADDR, 0X3B, 14, (unsigned char *)(nowWriteMPU->Data));// Read MPU data
+            err = MPU_Read_Len(0x68 , 0X3B, 14, (unsigned char *)(nowWriteMPU->Data));// Read MPU data
             offD3();
             if (!err) {
                 nowWriteMPU = nowWriteMPU->next; // Move the buffer pointer

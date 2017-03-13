@@ -3,8 +3,7 @@
 //以下是SPI模块的初始化代码，配置成主机模式 						  
 //SPI口初始化
 //这里针是对SPI1的初始化
-void SPI1_Init(void)
-{	 
+void SPI1_Init(void) {	 
   GPIO_InitTypeDef  GPIO_InitStructure;
   SPI_InitTypeDef  SPI_InitStructure;
 	
@@ -46,26 +45,20 @@ void SPI1_Init(void)
 //SPI速度=fAPB2/分频系数
 //@ref SPI_BaudRate_Prescaler:SPI_BaudRatePrescaler_2~SPI_BaudRatePrescaler_256  
 //fAPB2时钟一般为84Mhz：
-void SPI1_SetSpeed(u8 SPI_BaudRatePrescaler)
-{
-  assert_param(IS_SPI_BAUDRATE_PRESCALER(SPI_BaudRatePrescaler));//判断有效性
-	SPI1->CR1&=0XFFC7;//位3-5清零，用来设置波特率
-	SPI1->CR1|=SPI_BaudRatePrescaler;	//设置SPI1速度 
-	SPI_Cmd(SPI1,ENABLE); //使能SPI1
+void SPI1_SetSpeed(u8 SPI_BaudRatePrescaler) {
+    assert_param(IS_SPI_BAUDRATE_PRESCALER(SPI_BaudRatePrescaler));//判断有效性
+    SPI1->CR1&=0XFFC7;//位3-5清零，用来设置波特率
+    SPI1->CR1|=SPI_BaudRatePrescaler;	//设置SPI1速度 
+    SPI_Cmd(SPI1,ENABLE); //使能SPI1
 } 
 //SPI1 读写一个字节
 //TxData:要写入的字节
 //返回值:读取到的字节
-u8 SPI1_ReadWriteByte(u8 TxData)
-{		 			 
- 
-  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET){}//等待发送区空  
-	
-	SPI_I2S_SendData(SPI1, TxData); //通过外设SPIx发送一个byte  数据
-		
-  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET){} //等待接收完一个byte  
- 
-	return SPI_I2S_ReceiveData(SPI1); //返回通过SPIx最近接收的数据	
+u8 SPI1_ReadWriteByte(u8 TxData) { 
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET){}//等待发送区空  
+    SPI_I2S_SendData(SPI1, TxData); //通过外设SPIx发送一个byte  数据
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET){} //等待接收完一个byte  
+    return SPI_I2S_ReceiveData(SPI1); //返回通过SPIx最近接收的数据	
  		    
 }
 

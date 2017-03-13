@@ -1,23 +1,19 @@
 #ifndef __MPU6050_H
 #define __MPU6050_H
-
-#define MPU_IIC I2C1
-//#define RELEASE_VERSION
-#include "sys.h"
-#include "delay.h"
-#include "usart.h"   
-#include "stdio.h"
-#include "bin_writer.h"
-#define USE_SOFTWARE_IIC 0x00
-#define USE_HARDWARE_IIC 0x01
-
-#define IIC_LIB_SELECT USE_HARDWARE_IIC
-#if IIC_LIB_SELECT==USE_SOFTWARE_IIC
-#include "myiic.h"
-#else
-#include "hardiic.h"  
-#endif
-
+#include "myiic.h"   												  	  
+//////////////////////////////////////////////////////////////////////////////////	 
+//本程序只供学习使用，未经作者许可，不得用于其它任何用途
+//ALIENTEK STM32F407开发板
+//MPU6050 驱动代码	   
+//正点原子@ALIENTEK
+//技术论坛:www.openedv.com
+//创建日期:2014/5/9
+//版本：V1.0
+//版权所有，盗版必究。
+//Copyright(C) 广州市星翼电子科技有限公司 2014-2024
+//All rights reserved									  
+////////////////////////////////////////////////////////////////////////////////// 
+#define MPU_6050_SAMPLE_FREQUENCY 20
 //#define MPU_ACCEL_OFFS_REG		0X06	//accel_offs寄存器,可读取版本号,寄存器手册未提到
 //#define MPU_PROD_ID_REG			0X0C	//prod id寄存器,在寄存器手册未提到
 #define MPU_SELF_TESTX_REG		0X0D	//自检寄存器X
@@ -89,13 +85,12 @@
  
 //如果AD0脚(9脚)接地,IIC地址为0X68(不包含最低位).
 //如果接V3.3,则IIC地址为0X69(不包含最低位).
-#define MPU_IIC_ADDR				0xD0
-#define MPU_ADDR                    0xD0    
-#define MPU_DEVICE_ID               0x68
+#define MPU_ADDR				0X68
+
 
 ////因为开发板接GND,所以转为读写地址后,为0XD1和0XD0(如果接GND,则为0XD3和0XD2)  
-#define MPU_READ    0XD1
-#define MPU_WRITE   0XD0
+//#define MPU_READ    0XD1
+//#define MPU_WRITE   0XD0
 
 u8 MPU_Init(void); 								//初始化MPU6050
 u8 MPU_Write_Len(u8 addr,u8 reg,u8 len,u8 *buf);//IIC连续写
@@ -109,9 +104,8 @@ u8 MPU_Set_LPF(u16 lpf);
 u8 MPU_Set_Rate(u16 rate);
 u8 MPU_Set_Fifo(u8 sens);
 
-void initDataGetTimer( unsigned int frequencyMHZ );
 
-float MPU_Get_Temperature(void);
+short MPU_Get_Temperature(void);
 u8 MPU_Get_Gyroscope(short *gx,short *gy,short *gz);
 u8 MPU_Get_Accelerometer(short *ax,short *ay,short *az);
 

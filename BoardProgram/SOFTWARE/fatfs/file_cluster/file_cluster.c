@@ -56,12 +56,6 @@ void syncFiles( void ) {
     for (fpIndex = 0; fpIndex<4; fpIndex++){
         f_sync(fp_cluster + fpIndex);
     }
-    // RTC数据少，特殊对待。
-    /*
-    if (syncBufferSize[fpIndexRTC]>0) {
-        f_sync(fp_cluster + fpIndexRTC);
-        syncBufferSize[fpIndex] = 0;
-    }*/
 }
 
 FIL* get_fp_gps_bin( void ) {
@@ -88,7 +82,7 @@ void mountSDCard( void ) {
     unsigned char res = FR_OK;
     res = f_mount(&tfCardFs, "0:", 1);
 	while (res != FR_OK) {
-        delay_ms(500);
+        delay_ms(200);
         printf("Failed while mounting TF-Card, retrying...\r\n");
         res = f_mount(&tfCardFs, "0:", 1);
     }
@@ -105,8 +99,8 @@ void initFileCluster( void ) {
         res = f_open( fp_rtc_csv, "rtc.log.csv", FA_OPEN_ALWAYS | FA_WRITE);
         if (res != FR_OK) {
             printf("Error while opening rtc.log.csv, error code: %d, retrying...\r\n", res);
+            delay_ms(1000);
         }else{
-            delay_ms(2000);
             break;
         }
     }
@@ -115,10 +109,10 @@ void initFileCluster( void ) {
     sprintf(fn, "%08x.gps.bin", getBootCount());
     while(1){
         res = f_open(fp_gps_bin , fn, FA_CREATE_ALWAYS | FA_WRITE);
-         if (res != FR_OK) {
+        if (res != FR_OK) {
             printf("Error while create gps binary file %s, error code: %d, retrying...\r\n", fn, res);
+            delay_ms(1000);
         }else{
-            delay_ms(2000);
             break;
         }
     }
@@ -126,10 +120,11 @@ void initFileCluster( void ) {
     sprintf(fn, "%08x.mpu.bin", getBootCount());
     while(1){
         res = f_open(fp_mpu_bin , fn, FA_CREATE_ALWAYS | FA_WRITE);
-         if (res != FR_OK) {
+        if (res != FR_OK) {
             printf("Error while create gps binary file %s, error code: %d, retrying...\r\n", fn, res);
+            delay_ms(1000);
         }else{
-            delay_ms(2000);
+            
             break;
         }
     }
@@ -137,10 +132,11 @@ void initFileCluster( void ) {
     sprintf(fn, "%08x.can.bin", getBootCount());
     while(1){
         res = f_open(fp_can_bin , fn, FA_CREATE_ALWAYS | FA_WRITE);
-         if (res != FR_OK) {
+        if (res != FR_OK) {
             printf("Error while create gps binary file %s, error code: %d, retrying...\r\n", fn, res);
+            delay_ms(1000);
         }else{
-            delay_ms(2000);
+
             break;
         }
     }

@@ -107,12 +107,9 @@ void DMA1_Stream5_IRQHandler(void){
         DMA_Cmd(DMA1_Stream5, DISABLE); // Disable DMA1 Stream5
         DMA_ITConfig(DMA1_Stream5, DMA_IT_TC, ENABLE); // Enable interrupt
         DMA_ClearITPendingBit(DMA1_Stream5, DMA_IT_TCIF5); // Clear "Fully Filled" Flag
-        
         // Move to next buffer
         nowWriteDMA = nowWriteDMA->next; 
         DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)(nowWriteDMA->buffer);
-        
-       
         DMA_Init(DMA1_Stream5, &DMA_InitStructure); // re-init DMA1 Stream5
         DMA_Cmd(DMA1_Stream5, ENABLE); // Enable DMA1 Stream5
      }

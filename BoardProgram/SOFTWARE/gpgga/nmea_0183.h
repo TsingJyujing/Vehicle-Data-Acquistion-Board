@@ -24,4 +24,11 @@ unsigned char process_gps_buffer(
 );
 unsigned char isGNRMC(unsigned char *buffer);
 void printRMCInfo(RMCInfo data);
+
+void strrepc(
+	unsigned char *buffer_input,
+	unsigned int buffer_size,
+	unsigned char old_char,
+	unsigned char new_char
+	);
 #endif

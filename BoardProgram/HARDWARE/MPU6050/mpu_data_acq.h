@@ -1,6 +1,7 @@
 #ifndef __MPU_DATA_INTERP__
 #define __MPU_DATA_INTERP__
 #include "mpu6050.h"
+#include "bin_writer.h"
 
 typedef struct st_lp_node{
     unsigned char Data[14];
@@ -12,7 +13,7 @@ extern linkedMPUNode *nowWriteMPU;
 extern linkedMPUNode *nowProcessedMPU;
 
 // Parameters Settings
-#define SAMPLE_MILLSECOND_TIME 20
+#define SAMPLE_MILLSECOND_TIME (1000/MPU_6050_SAMPLE_FREQUENCY)
 #define SIGNED_MAX_SHORT 32768
 
 #define MAX_ACCE_VALUE 2*9.8
@@ -21,7 +22,6 @@ extern linkedMPUNode *nowProcessedMPU;
 #define ACCE_GAIN MAX_ACCE_VALUE/SIGNED_MAX_SHORT
 #define GYRO_GAIN MAX_GYRO_VALUE/SIGNED_MAX_SHORT
 
-posture_info MPUBuffer2Posture(unsigned char buffer[14]);
-
+posture_info MPUBuffer2Posture( unsigned char buffer[14] );
+void initDataGetTimer( unsigned int frequencyMHZ );
 #endif
-

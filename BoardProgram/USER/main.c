@@ -9,11 +9,13 @@
 
 #define DISPLAY_CAN_INFO 0
 #define DISPLAY_GPS_INFO 0
-#define DISPLAY_MPU_INFO 0
+#define DISPLAY_MPU_INFO 1
 #define MIN_UPDATE_TIME 60000
 #define MIN_SAVING_TIME 10000
 #define SAVE_FILE 1
 #define TRACE_DATA_PROCESS 1
+#define USING_WATCHING_DOG 0
+
 void initAll(void);
 
 int main(void) {
@@ -29,7 +31,6 @@ int main(void) {
 	while (1) {
         setMPUFlag();
         gotGPS = 0x00; gotCAN = 0x00; gotMPU = 0x00;
-        onD2();
         processDMABuffer();
         while (nowWriteGPRMC!=nowProcessedGPRMC){
             gotGPS = 0x01;
@@ -50,8 +51,8 @@ int main(void) {
                 #endif
             }
             if (lastUpdateRTC==0 || (getTick()-lastUpdateRTC)>MIN_UPDATE_TIME) {
-                sprintf((char *)serializeBuffer, "%d,%f,%f,20%02d-%02d-%02d %02d:%02d:%02d.%03d\r\n", 
-                    nowProcessedGPRMC->Data.tick,
+                sprintf((char *)serializeBuffer, "%d,%d,%f,%f,20%02d-%02d-%02d %02d:%02d:%02d.%03d\r\n", 
+                    bootCount, nowProcessedGPRMC->Data.tick,
                     nowProcessedGPRMC->Data.lng, nowProcessedGPRMC->Data.lat,
                     nowProcessedGPRMC->Data.year, nowProcessedGPRMC->Data.month, nowProcessedGPRMC->Data.day,
                     nowProcessedGPRMC->Data.hour, nowProcessedGPRMC->Data.minute, nowProcessedGPRMC->Data.second, nowProcessedGPRMC->Data.ms
@@ -71,6 +72,7 @@ int main(void) {
             //**************************
             #if DISPLAY_CAN_INFO
             printf("Tick:%f\t",((double)nowProcessedCAN->gotTick)/1000.0);
+            
             printCAN( (CanRxMsg *)&((nowProcessedCAN->Data)) );
             #endif
             //**************************
@@ -102,8 +104,8 @@ int main(void) {
             quaternionsUpdate(P.gx, P.gy, P.gz, P.ax, P.ay, P.az);
             getAngles(&(P.pitch), &(P.roll), &(P.yaw));
             #if DISPLAY_MPU_INFO
-            printf("%f,", ((double)P.tick)/1000.0);
-            printf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\r\n",
+            printf("%f\t", ((double)P.tick)/1000.0);
+            printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\r\n",
                 P.gx, P.gy, P.gz, P.ax, P.ay, P.az,
                 P.pitch, P.roll, P.yaw, P.temperature);
             #endif
@@ -115,7 +117,7 @@ int main(void) {
             #endif
             nowProcessedMPU = nowProcessedMPU->next;
         }
-        offD2();
+        
         #if TRACE_DATA_PROCESS
         if (gotGPS) {
             printf("P");
@@ -127,14 +129,17 @@ int main(void) {
             printf("M");
         }
         #endif
+        
         #if SAVE_FILE
         if ((getTick() - lastSavingTick)>MIN_SAVING_TIME) {
-            printf("\r\n");
+            printf("S");
             syncFiles();
             lastSavingTick = getTick();
-            printf("S");
+            printf("\r\n%d\r\n", lastSavingTick);
         }
         #endif
+        
+        
     }
 }
 
@@ -142,13 +147,12 @@ int main(void) {
 void initAll(void) {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     delay_init(SYSTEM_CLOCK_MHZ);
-    initTick(SYSTEM_CLOCK_MHZ);
     initUART(DEBUG_UART1_BAUD_RATE);
     printf("Data Acquistion Board is booting...\r\n");
     W25QXX_Init();
     initBootCount();
-    
     initLED();
+    
     mountSDCard(); printf("SD card mounted successfully.\r\nCreating BIN files.\r\n");
     initFileCluster(); printf("File cluster initialized successfully.\r\n");
     
@@ -158,17 +162,15 @@ void initAll(void) {
         delay_ms(200);
     }
     
-    initDataGetTimer(SYSTEM_CLOCK_MHZ);
-    printf("Load MPU-6050 successfully.\r\n");
-    initGPS();
-    printf("GPS (@USART2) initialized.\r\n");
-    CAN1_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 12 ,CAN_Mode_Normal);
-    printf("CAN BUS initialized.\r\n");
+    initDataGetTimer(SYSTEM_CLOCK_MHZ); printf("Load MPU-6050 successfully.\r\n");
+    initGPS(); printf("GPS (@USART2) initialized.\r\n");
+    CAN1_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 12 ,CAN_Mode_Normal); printf("CAN BUS initialized.\r\n");
     
-    
-    //IWDG_Init(7,2000);
-    //printf("Independent watching dog initialized.\r\n");
+    #if USING_WATCHING_DOG
+    IWDG_Init(7,2000);printf("Independent watching dog initialized.\r\n");
+    #endif
 	printf("All devices initialized.\r\n");
     
-    printf("Software flag: 2017-3-9 15:54:00\r\n");
+    initTick(SYSTEM_CLOCK_MHZ);
+    printf("Software flag: 2017-3-10 13:30:36\r\n");
 }

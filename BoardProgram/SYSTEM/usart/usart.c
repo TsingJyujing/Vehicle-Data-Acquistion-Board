@@ -34,10 +34,12 @@ int fputc(int ch, FILE *f)
 //初始化IO 串口1 
 //bound:波特率
 void initUART(u32 bound){
-   //GPIO端口设置
-  GPIO_InitTypeDef GPIO_InitStructure;
+    //GPIO端口设置
+    GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
+    #if EN_USART1_RX	
 	NVIC_InitTypeDef NVIC_InitStructure;
+    #endif
 	
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE); //使能GPIOA时钟
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1,ENABLE);//使能USART1时钟

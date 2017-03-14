@@ -11,13 +11,27 @@ volatile unsigned int syncBufferSize[4] = {0};
 FATFS tfCardFs;
 
 volatile unsigned char initialized = 0x00;
+
+/**
+ * @deprecated
+ */
 #define UNLOCK 0x00
+
+/**
+ * @deprecated
+ */
 volatile unsigned char sync_lock = UNLOCK;
 
+/**
+ * @deprecated
+ */
 unsigned char getSynchronize() {
     return sync_lock;
 }
 
+/**
+ * @deprecated
+ */
 #define WAIT_MS 50
 void waitSynchronize() {
     while(sync_lock!=UNLOCK){
@@ -25,17 +39,26 @@ void waitSynchronize() {
     }
 }
 
+/**
+ * @deprecated
+ */
 void lockFileSystem(unsigned char LockerID) {
     waitSynchronize();
     sync_lock = LockerID;
 }
 
+/**
+ * @function Unlock file-system
+ */
 void unlockFileSystem(unsigned char LockerID) {
     if (sync_lock==LockerID){
         sync_lock = UNLOCK;
     }
 }
 
+/**
+ * @function write byte buffer to file
+ */
 unsigned char writeFile(unsigned int fpIndex, const void *buffer, unsigned int len) {
     unsigned int result = FR_OK;
     f_write( fp_cluster + fpIndex, buffer, len, &result);
@@ -47,10 +70,16 @@ unsigned char writeFile(unsigned int fpIndex, const void *buffer, unsigned int l
     }
 }
 
+/**
+ * @function Write a delimiter(0x7E) to file.
+ */
 void writeDelimiter( unsigned int fpIndex ){
     f_putc(DELIMITER, fp_cluster + fpIndex);
 }
 
+/**
+ * @function Flush file buffers to SD card.
+ */
 void syncFiles( void ) {
     unsigned int fpIndex;
     for (fpIndex = 0; fpIndex<4; fpIndex++){
@@ -58,26 +87,44 @@ void syncFiles( void ) {
     }
 }
 
+/**
+ * @function get GPS binary file pointer
+ */
 FIL* get_fp_gps_bin( void ) {
     return fp_gps_bin;
 }
 
+/**
+ * @function get acceletration sensor binary file pointer
+ */
 FIL* get_fp_mpu_bin( void ) {
     return fp_mpu_bin;
 }
 
+/**
+ * @function get real-time-clock log csv file pointer
+ */
 FIL* get_fp_rtc_csv( void ) {
     return fp_rtc_csv;
 }
 
+/**
+ * @function get CAN bus binary file pointer
+ */
 FIL* get_fp_can_bin( void ) {
     return fp_can_bin;
 }
 
+/**
+ * @function judge this module is initialized
+ */
 unsigned char isInited( void ) {
     return initialized;
 }
 
+/**
+ * @function mount TF-Card to 0:
+ */
 void mountSDCard( void ) {
     unsigned char res = FR_OK;
     res = f_mount(&tfCardFs, "0:", 1);
@@ -90,6 +137,9 @@ void mountSDCard( void ) {
 }
 
 
+/**
+ * @function create/open files and set file pointer
+ */
 void initFileCluster( void ) {
     unsigned char res = 0;
     char fn[255] = {0};
